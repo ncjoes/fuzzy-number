@@ -1,0 +1,28 @@
+{
+    "name": "ncjoes/fuzzy-number",
+    "type" : "library",
+    "description" : "A PHP implementation of Fuzzy number as data-type",
+    "keywords" : ["Fuzzy Logic", "Fuzzy Arithmetic", "Fuzzy numbers"],
+    "homepage" : "https://github.com/ncjeos/fuzzy-number",
+    "license" : "MIT",
+    "authors" : [
+        {
+            "name" : "Chukwuemeka Nwobodo",
+            "email" : "jc.nwobodo@gmail.com"
+        }
+    ],
+    "require" : {
+        "php" : ">=5.5.9",
+        "illuminate/support": "5.3.*"
+    },
+    "require-dev" : {
+        "phpunit/phpunit" : "5.5.*"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "NcJoes\\FuzzyNumber\\" : "src/FuzzyNumber",
+            "NcJoes\\PdfSuite\\Tests\\" : "tests"
+        }
+    },
+    "minimum-stability" : "stable"
+}
