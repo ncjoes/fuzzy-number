@@ -21,7 +21,7 @@
     "autoload" : {
         "psr-4" : {
             "NcJoes\\FuzzyNumber\\" : "src/FuzzyNumber",
-            "NcJoes\\PdfSuite\\Tests\\" : "tests"
+            "NcJoes\\FuzzyNumber\\Tests\\" : "tests"
         }
     },
     "minimum-stability" : "stable"

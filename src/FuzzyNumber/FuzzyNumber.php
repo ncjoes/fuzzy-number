@@ -7,7 +7,7 @@
  * Time:    6:20 PM
  **/
 
-namespace App\Models\DataTypes;
+namespace NcJoes\FuzzyNumber;
 
 use Illuminate\Support\Collection;
 
