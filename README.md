@@ -9,6 +9,7 @@ Supported operations on Fuzzy numbers include:
 *   Division
 *   Inversion (reciprocals)
 *   Geometric Mean
+*   'Defuzzification'
 *   ...lots more
 
 ## How to Install?
@@ -40,6 +41,7 @@ $fn4 = FuzzyNumber::sum($fn1, $fn2);// ==$fn3
 $fn5 = $fn3->subtract($fn2); // ==$fn1
 $fn4 = FuzzyNumber::diff($fn3, $fn2);// ==$fn1
 
+$fn5->defuzzify(); // average
 //etc
 ?>
 ```

@@ -96,6 +96,12 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         return self::invert($this, $dp);
     }
 
+    public function defuzzify($dp=3)
+    {
+      $sum = array_sum($this->triple);
+      return $sum ? round($sum/3, $dp) : $sum;
+    }
+
     public static function sum(self $fzn1, self $fzn2)
     {
         return new self([
