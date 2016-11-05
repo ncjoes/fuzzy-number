@@ -1,6 +1,6 @@
 <?php
 /**
- * aspes.msc
+ * FuzzyNumber
  *
  * Author:  Chukwuemeka Nwobodo (jcnwobodo@gmail.com)
  * Date:    11/4/2016
@@ -152,7 +152,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
             ]);
         }
 
-        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers");
+        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers \n".print_r($fuzzyNumbers, true));
     }
 
     public static function addMany(array $fuzzyNumbers)
@@ -192,10 +192,11 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     protected static function checkIfMassActionable(Collection $fuzzyNumbers, $min = 2)
     {
-        if ($fuzzyNumbers->count() > ($min - 1)) {
+        if ($fuzzyNumbers->count() >= $min - 1) {
             $test = clone $fuzzyNumbers;
-            for($i=0; $i < $min; $i++) {
-                if(get_class($test->pop()) !== self::class)
+            foreach($test as $item) {
+                $class = get_class($item);
+                if(!in_array(self::class, class_parents($class)) and $class !== self::class)
                     return false;
             }
             return true;
