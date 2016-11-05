@@ -9,8 +9,6 @@
 
 namespace NcJoes\FuzzyNumber;
 
-use Illuminate\Support\Collection;
-
 class FuzzyNumber implements \Serializable, \JsonSerializable
 {
     private   $l;
@@ -20,7 +18,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     public function __construct(array $array)
     {
-        if (self::checkIsTriple($array)) {
+        if (self::checkIfTriple($array)) {
             $this->l = $array[0];
             $this->m = $array[1];
             $this->u = $array[2];
@@ -29,12 +27,12 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
             return $this;
         }
 
-        return self::E("Not a triple");
+        throw  new self::$E("Not a triple: ".print_r($array));
     }
 
     public function __set($name, $value)
     {
-        self::E("Can not mutate a FuzzyNumber, create a new object instead");
+        throw new self::$E("Can not mutate a FuzzyNumber, create a new object instead");
     }
 
     public function __toString()
@@ -96,10 +94,11 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         return self::invert($this, $dp);
     }
 
-    public function defuzzify($dp=3)
+    public function defuzzify($dp = 3)
     {
-      $sum = array_sum($this->triple);
-      return $sum ? round($sum/3, $dp) : $sum;
+        $sum = array_sum($this->triple);
+
+        return $sum ? round($sum / 3, $dp) : $sum;
     }
 
     public static function sum(self $fzn1, self $fzn2)
@@ -147,10 +146,9 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         ]);
     }
 
-    public static function geometricMean(array $fuzzyNumbers, $dp=3)
+    public static function geometricMean(array $fuzzyNumbers, $dp = 3)
     {
-        $test = new Collection($fuzzyNumbers);
-        if (self::checkIfMassActionable($test)) {
+        if (self::checkIfMassActionable($fuzzyNumbers)) {
             return new self([
                 self::GM(self::getL($fuzzyNumbers), $dp),
                 self::GM(self::getM($fuzzyNumbers), $dp),
@@ -158,7 +156,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
             ]);
         }
 
-        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers only \n".print_r($fuzzyNumbers, true));
+        throw new self::$E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers only \n".print_r($fuzzyNumbers, true));
     }
 
     public static function addMany(array $fuzzyNumbers)
@@ -186,25 +184,33 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         return self::getKey($fuzzyNumbers, 'U');
     }
 
-    public static function checkIsTriple(array $array)
+    public static function checkIfTriple(array $array)
     {
         return (isset($array[0]) and isset($array[1]) and isset($array[2]) and sizeof($array) === 3);
     }
 
     public static function checkIfTFN(array $arr)
     {
-        return self::checkIsTriple($arr) and ($arr[0] !== $arr[1] and $arr[0] !== $arr[2] and $arr[1] !== $arr[2]);
+        return self::checkIfTriple($arr) and ($arr[0] !== $arr[1] and $arr[0] !== $arr[2] and $arr[1] !== $arr[2]);
     }
 
-    protected static function checkIfMassActionable(Collection $fuzzyNumbers, $min = 2)
+    protected static function checkIfMassActionable(array& $fuzzyNumbers, $min = 2)
     {
-        if ($fuzzyNumbers->count() >= $min - 1) {
-            $test = clone $fuzzyNumbers;
-            foreach($test as $item) {
-                $class = get_class($item);
-                if(!in_array(self::class, class_parents($class)) and $class !== self::class)
-                    return false;
+        if (count($fuzzyNumbers) >= $min - 1) {
+            foreach ($fuzzyNumbers as $key => $item) {
+                if (is_array($item) and self::checkIfTriple($item)) {
+                    $fuzzyNumbers[ $key ] = new self($item);
+                    continue;
+                }
+                if (is_object($item)) {
+                    $class = get_class($item);
+                    if (in_array(self::class, class_parents($class)) or $class === self::class)
+                        continue;
+                }
+
+                return false;
             }
+
             return true;
         }
 
@@ -214,7 +220,6 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
     protected static function getKey(array $fuzzyNumbers, $K)
     {
         $R = [];
-        $fuzzyNumbers = new Collection($fuzzyNumbers);
         if (self::checkIfMassActionable($fuzzyNumbers, 2)) {
             foreach ($fuzzyNumbers as $fuzzyNumber) {
                 array_push($R, ($fuzzyNumber)->$K());
@@ -236,9 +241,9 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     protected static function massAction(array $fuzzyNumbers, $method)
     {
-        $fuzzyNumbers = new Collection($fuzzyNumbers);
         if (self::checkIfMassActionable($fuzzyNumbers)) {
-            $result = $fuzzyNumbers->first();
+            $keys = array_keys($fuzzyNumbers);
+            $result = $fuzzyNumbers[$keys[0]];
             foreach ($fuzzyNumbers as $fuzzyNumber) {
                 $result = self::$method($result, $fuzzyNumber);
             }
@@ -246,11 +251,8 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
             return $result;
         }
 
-        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers");
+        throw new self::$E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers");
     }
 
-    protected static function E($message)
-    {
-        throw new \InvalidArgumentException($message);
-    }
+    public static $E = \InvalidArgumentException::class;
 }
