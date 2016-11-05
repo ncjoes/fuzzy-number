@@ -146,13 +146,13 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         $test = new Collection($fuzzyNumbers);
         if (self::checkIfMassActionable($test)) {
             return new self([
-                min(self::getL($fuzzyNumbers)),
+                self::GM(self::getL($fuzzyNumbers), $dp),
                 self::GM(self::getM($fuzzyNumbers), $dp),
-                max(self::getU($fuzzyNumbers))
+                self::GM(self::getU($fuzzyNumbers), $dp)
             ]);
         }
 
-        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers \n".print_r($fuzzyNumbers, true));
+        return self::E("Array -{fuzzyNumbers}- must contain 2 or more FuzzyNumbers only \n".print_r($fuzzyNumbers, true));
     }
 
     public static function addMany(array $fuzzyNumbers)
