@@ -11,10 +11,9 @@ namespace NcJoes\FuzzyNumber;
 
 class FuzzyNumber implements \Serializable, \JsonSerializable
 {
-    private   $l;
-    private   $m;
-    private   $u;
-    protected $triple;
+    private $l;
+    private $m;
+    private $u;
 
     public function __construct(array $array)
     {
@@ -22,7 +21,6 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
             $this->l = $array[0];
             $this->m = $array[1];
             $this->u = $array[2];
-            $this->triple = $array;
 
             return $this;
         }
@@ -37,7 +35,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     public function __toString()
     {
-        return json_encode($this->triple);
+        return json_encode($this->triple());
     }
 
     public function serialize()
@@ -48,14 +46,14 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
     public function unserialize($serialized)
     {
         $phpJsonObject = json_decode($serialized);
-        $this->l = $phpJsonObject->l;
-        $this->m = $phpJsonObject->m;
-        $this->u = $phpJsonObject->u;
+        $this->l = $phpJsonObject[0];
+        $this->m = $phpJsonObject[1];
+        $this->u = $phpJsonObject[2];
     }
 
     function jsonSerialize()
     {
-        return $this->triple;
+        return $this->triple();
     }
 
     public function L() { return $this->l; }
@@ -64,9 +62,11 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     public function U() { return $this->u; }
 
+    public function triple() { return [$this->l, $this->m, $this->u]; }
+
     public function isTFN()
     {
-        return self::checkIfTFN($this->triple);
+        return self::checkIfTFN($this->triple());
     }
 
     public function add(self $fuzzyNumber)
@@ -96,7 +96,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
 
     public function defuzzify($dp = 3)
     {
-        $sum = array_sum($this->triple);
+        $sum = array_sum($this->triple());
 
         return $sum ? round($sum / 3, $dp) : $sum;
     }
@@ -243,7 +243,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
     {
         if (self::checkIfMassActionable($fuzzyNumbers)) {
             $keys = array_keys($fuzzyNumbers);
-            $result = $fuzzyNumbers[$keys[0]];
+            $result = $fuzzyNumbers[ $keys[0] ];
             foreach ($fuzzyNumbers as $fuzzyNumber) {
                 $result = self::$method($result, $fuzzyNumber);
             }
