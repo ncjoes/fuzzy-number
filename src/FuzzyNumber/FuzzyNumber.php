@@ -222,7 +222,7 @@ class FuzzyNumber implements \Serializable, \JsonSerializable
         $R = [];
         if (self::checkIfMassActionable($fuzzyNumbers, 2)) {
             foreach ($fuzzyNumbers as $fuzzyNumber) {
-                array_push($R, ($fuzzyNumber)->$K());
+                array_push($R, $fuzzyNumber->$K());
             }
         }
 
